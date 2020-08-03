@@ -23,7 +23,7 @@ describe("formatDates", () => {
       },
     ];
     const output = formatDates(input);
-    expect(output[0].created_at).toEqual(expect.any(String));
+    expect(output[0].created_at).toEqual(expect.any(Date));
   });
   test("returns the formatted date for the created_at property for all the objects in the array", () => {
     const input = [
@@ -55,7 +55,7 @@ describe("formatDates", () => {
     ];
     const output = formatDates(input);
     output.forEach((article) => {
-      expect(article.created_at).toEqual(expect.any(String));
+      expect(article.created_at).toEqual(expect.any(Date));
     });
   });
   test("checks that the original array is not mutated and a new array is returned ", () => {
@@ -102,10 +102,114 @@ describe("formatDates", () => {
   });
 });
 
-describe.only("makeRefObj", () => {
+describe("makeRefObj", () => {
   test("returns an object given an empty array", () => {
     expect(typeof makeRefObj([])).toBe("object");
   });
+  test("returns the correct key-value pair given a single item", () => {
+    const article = [
+      {
+        title: "UNCOVERED: catspiracy to bring down democracy",
+        topic: "cats",
+        author: "rogersop",
+        body: "Bastet walks amongst us, and the cats are taking arms!",
+        created_at: 1037708514171,
+        article_id: 1,
+      },
+    ];
+    expect(makeRefObj(article)).toEqual({
+      "UNCOVERED: catspiracy to bring down democracy": 1,
+    });
+  });
+  test("returns the correct key-value pair for multiple articles", () => {
+    const articles = [
+      {
+        title: "Eight pug gifs that remind me of mitch",
+        topic: "mitch",
+        author: "icellusedkars",
+        body: "some gifs",
+        created_at: 1289996514171,
+        article_id: 3,
+      },
+      {
+        title: "Student SUES Mitch!",
+        topic: "mitch",
+        author: "rogersop",
+        body:
+          "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+        created_at: 1163852514171,
+        article_id: 4,
+      },
+      {
+        title: "UNCOVERED: catspiracy to bring down democracy",
+        topic: "cats",
+        author: "rogersop",
+        body: "Bastet walks amongst us, and the cats are taking arms!",
+        created_at: 1037708514171,
+        article_id: 5,
+      },
+    ];
+    expect(makeRefObj(articles)).toEqual({
+      "Eight pug gifs that remind me of mitch": 3,
+      "Student SUES Mitch!": 4,
+      "UNCOVERED: catspiracy to bring down democracy": 5,
+    });
+  });
+  test("does not mutate the original array ", () => {
+    const article = [
+      {
+        title: "Eight pug gifs that remind me of mitch",
+        topic: "mitch",
+        author: "icellusedkars",
+        body: "some gifs",
+        created_at: 1289996514171,
+        article_id: 3,
+      },
+    ];
+    makeRefObj(article);
+    expect(article).toEqual([
+      {
+        title: "Eight pug gifs that remind me of mitch",
+        topic: "mitch",
+        author: "icellusedkars",
+        body: "some gifs",
+        created_at: 1289996514171,
+        article_id: 3,
+      },
+    ]);
+  });
 });
 
-describe("formatComments", () => {});
+describe("formatComments", () => {
+  test("returns an empty array when given an empty array", () => {
+    const input = [];
+    const formattedComments = formatComments(input);
+    expect(formattedComments).toEqual([]);
+    expect(formattedComments).not.toBe(input);
+  });
+  test("returns the correct array when given an array with one input and a reference object", () => {
+    const comment = [
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1385210163389,
+        comment_id: 1,
+      },
+    ];
+    const refObject = { "Living in the shadow of a great man": 1 };
+    const formattedComments = formatComments(comment, refObject);
+    expect(formattedComments).toEqual([
+      {
+        body: "I hate streaming noses",
+        article_id: 1,
+        author: "icellusedkars",
+        votes: 0,
+        created_at: expect.any(Date),
+        comment_id: 1,
+      },
+    ]);
+    expect(formattedComments).not.toBe(comment);
+  });
+});

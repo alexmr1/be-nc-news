@@ -6,6 +6,8 @@
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "knex seed:run",
+    "seed-dev": "NODE_ENV=dev knex seed:run",
+    "seed-test": "knex migrate:rollback && knex migrate:latest && knex seed:run",
     "test": "jest --watch",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
