@@ -58,7 +58,7 @@ describe("app", () => {
           .get("/api/users/nobodyHere")
           .expect(404)
           .then((res) => {
-            expect(res.body.msg).toBe("Username not found!");
+            expect(res.body.msg).toBe("Username nobodyHere not found!");
           });
       });
     });
