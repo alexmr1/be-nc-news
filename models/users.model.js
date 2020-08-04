@@ -1,14 +1,12 @@
 const knex = require("../db/connection");
 
-exports.fetchTopics = () => {
+exports.fetchUser = ({ username }) => {
   return knex
     .select("*")
-    .from("topics")
+    .from("users")
+    .where("username", "=", username)
     .returning("*")
     .then((result) => {
-      return result;
-    })
-    .catch((error) => {
-      return error;
+      return result[0];
     });
 };

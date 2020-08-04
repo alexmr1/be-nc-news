@@ -48,7 +48,7 @@ exports.seed = function (knex) {
             .insert(formattedComments)
             .returning("*")
             .then(() => {
-              console.log("Seeding completed");
+              // console.log("Seeding completed");
             });
         });
     });

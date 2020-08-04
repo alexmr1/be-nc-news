@@ -8,10 +8,13 @@
     "seed": "knex seed:run",
     "seed-dev": "NODE_ENV=dev knex seed:run",
     "seed-test": "NODE_ENV=test knex seed:run",
-    "test": "jest --watch",
+    "test": "jest --watch ",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
     "migrate-rollback": "knex migrate:rollback"
+  },
+  "jest": {
+    "verbose": false
   },
   "repository": {
     "type": "git",
