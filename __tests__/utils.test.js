@@ -187,7 +187,7 @@ describe("formatComments", () => {
     expect(formattedComments).toEqual([]);
     expect(formattedComments).not.toBe(input);
   });
-  test("returns the correct array when given an array with one input and a reference object", () => {
+  test("returns the correct array when given an array with one input and a reference object && checks that a new array is created", () => {
     const comment = [
       {
         body: "I hate streaming noses",
@@ -211,5 +211,74 @@ describe("formatComments", () => {
       },
     ]);
     expect(formattedComments).not.toBe(comment);
+  });
+  test("returns the correct array when given an array with multiple inputs and a reference object && checks that a new array is created", () => {
+    const comments = [
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1385210163389,
+        comment_id: 1,
+      },
+      {
+        body: "The owls are not what they seem.",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "icellusedkars",
+        votes: 20,
+        created_at: 1006778163389,
+        comment_id: 2,
+      },
+    ];
+    const refObject = {
+      "Living in the shadow of a great man": 1,
+      "They're not exactly dogs, are they?": 9,
+    };
+    const formattedComments = formatComments(comments, refObject);
+    expect(formattedComments).toEqual([
+      {
+        body: "I hate streaming noses",
+        article_id: 1,
+        author: "icellusedkars",
+        votes: 0,
+        created_at: expect.any(Date),
+        comment_id: 1,
+      },
+      {
+        body: "The owls are not what they seem.",
+        article_id: 9,
+        author: "icellusedkars",
+        votes: 20,
+        created_at: expect.any(Date),
+        comment_id: 2,
+      },
+    ]);
+    expect(formattedComments).not.toBe(comments);
+  });
+
+  test("checks that the input array is not mutated ", () => {
+    const comment = [
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1385210163389,
+        comment_id: 1,
+      },
+    ];
+    const refObject = { "Living in the shadow of a great man": 1 };
+    formatComments(comment, refObject);
+    expect(comment).toEqual([
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1385210163389,
+        comment_id: 1,
+      },
+    ]);
   });
 });

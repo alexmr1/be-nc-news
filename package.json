@@ -7,7 +7,7 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "knex seed:run",
     "seed-dev": "NODE_ENV=dev knex seed:run",
-    "seed-test": "knex migrate:rollback && knex migrate:latest && knex seed:run",
+    "seed-test": "NODE_ENV=test knex seed:run",
     "test": "jest --watch",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
@@ -25,9 +25,11 @@
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
   "dependencies": {
-    "jest": "^26.2.2",
+    "express": "^4.17.1",
     "knex": "^0.21.2",
     "pg": "^8.3.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jest": "^26.2.2"
+  }
 }
