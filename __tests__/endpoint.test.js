@@ -39,7 +39,7 @@ describe("app", () => {
       });
     });
     describe("/users/:username", () => {
-      test.only("GET 200: responds with the correct user objects and status code 200", () => {
+      test("GET 200: responds with the correct user objects and status code 200", () => {
         return request(app)
           .get("/api/users/lurker")
           .expect(200)
@@ -62,13 +62,12 @@ describe("app", () => {
           });
       });
     });
-    describe.only("/articles/:article_id", () => {
+    describe("/articles/:article_id", () => {
       test("GET 200: responds with the correct article based on the article_id ", () => {
         return request(app)
-          .get("/api/articles/9")
+          .get("/api/articles/1")
           .expect(200)
           .then((res) => {
-            console.log(res.body.article);
             expect(res.body.article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
@@ -82,6 +81,34 @@ describe("app", () => {
               })
             );
           });
+      });
+      test("GET 404: responds with article_id is not found and 404 code", () => {
+        return request(app)
+          .get("/api/articles/4689")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Article id 4689 not found!");
+          });
+      });
+      test("GET 400: responds with Bad request invalid article_id input", () => {
+        return request(app)
+          .get("/api/articles/thisart")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("INVALID METHODS /api/articles/:article_id, 405", () => {
+        const invalidMethods = ["put", "patch", "del"];
+        const promises = invalidMethods.map((method) => {
+          return request(app)
+            [method]("/api/articles/1")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Method not allowed!");
+            });
+        });
+        return Promise.all(promises);
       });
     });
   });

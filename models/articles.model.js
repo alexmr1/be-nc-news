@@ -11,7 +11,12 @@ exports.fetchArticleById = ({ article_id }) => {
     .count("comments.article_id", { as: "comments_count" })
     .returning("*")
     .then((result) => {
-      // console.log(result[0]);
+      if (result.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Article id ${article_id} not found!`,
+        });
+      }
       return {
         ...result[0],
         comments_count: parseInt(result[0].comments_count, 10),

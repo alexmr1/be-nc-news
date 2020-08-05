@@ -1,11 +1,12 @@
 const { sendTopics } = require("../controllers/topics.controller");
-const { sendUser } = require("../controllers/users.controller");
-const { sendArticle } = require("../controllers/articles.controller");
+
+const articlesRouter = require("../routes/articles.routes");
+const usersRouter = require("./users.routes");
 
 const apiRouter = require("express").Router();
 
 apiRouter.use("/topics", sendTopics);
-apiRouter.use("/users/:username", sendUser);
-apiRouter.use("/articles/:article_id", sendArticle);
+apiRouter.use("/users/", usersRouter);
+apiRouter.use("/articles/", articlesRouter);
 
 module.exports = apiRouter;
