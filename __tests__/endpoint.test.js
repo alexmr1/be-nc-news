@@ -61,6 +61,18 @@ describe("app", () => {
             expect(res.body.msg).toBe("Username nobodyHere not found!");
           });
       });
+      test("INVALID METHODS /api/users/:username, 405", () => {
+        const invalidMethods = ["put", "patch", "del", "post"];
+        const promises = invalidMethods.map((method) => {
+          return request(app)
+            [method]("/api/users/1")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Method not allowed!");
+            });
+        });
+        return Promise.all(promises);
+      });
     });
     describe("/articles/:article_id", () => {
       test("GET 200: responds with the correct article based on the article_id ", () => {
@@ -99,7 +111,7 @@ describe("app", () => {
           });
       });
       test("INVALID METHODS /api/articles/:article_id, 405", () => {
-        const invalidMethods = ["put", "patch", "del"];
+        const invalidMethods = ["put", "del"];
         const promises = invalidMethods.map((method) => {
           return request(app)
             [method]("/api/articles/1")
@@ -109,6 +121,74 @@ describe("app", () => {
             });
         });
         return Promise.all(promises);
+      });
+      test("PATCH 200: updates the number of votes and returns the updated article", () => {
+        const patchForArticle = { inc_votes: 10 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(patchForArticle)
+          .expect(200)
+          .then((res) => {
+            expect(res.body.article).toEqual({
+              article_id: 1,
+              title: "Living in the shadow of a great man",
+              body: "I find this existence challenging",
+              votes: 110,
+              topic: "mitch",
+              author: "butter_bridge",
+              created_at: "2018-11-15T12:21:54.171Z",
+            });
+          })
+          .then((res) => {
+            return request(app).get("/api/articles/1");
+          })
+          .then((res) => {
+            expect(res.body.article.votes).toBe(110);
+          });
+      });
+      test("PATCH 404: article_id not found", () => {
+        const patchForArticle = { inc_votes: -10 };
+        return request(app)
+          .patch("/api/articles/7415")
+          .send(patchForArticle)
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Article id 7415 not found!");
+          });
+      });
+      test("PATCH 400: bad request response and status 400", () => {
+        const patchForArticle = { inc_votes: "no_votes" };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(patchForArticle)
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+    });
+    describe.only("/articles/:article_id/comments", () => {
+      test("POST: 201 - posts a new comment for an article id && status 201 ", () => {
+        const commentToAdd = {
+          username: "mabojambo",
+          body: "This is an intriguing article.",
+        };
+        return request(app)
+          .post("/api/articles/1/comments")
+          .send(commentToAdd)
+          .expect(201)
+          .then((res) => {
+            expect(res.body.comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                author: "mabojambo",
+                article_id: 9,
+                votes: 0,
+                created_at: expect.any(String),
+                body: "This is an intriguing article.",
+              })
+            );
+          });
       });
     });
   });

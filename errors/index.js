@@ -10,11 +10,11 @@ exports.handlePsqlErrors = (err, req, res, next) => {
   else next(err);
 };
 
-exports.handle405s = (req, res, next) => {
-  res.status(405).send({ msg: "Method not allowed!" });
-};
-
 exports.handleServerErrors = (err, req, res, next) => {
   console.log(err);
   res.status(500).send({ msg: "Internal Server Error" });
+};
+
+exports.handle405s = (req, res, next) => {
+  res.status(405).send({ msg: "Method not allowed!" });
 };

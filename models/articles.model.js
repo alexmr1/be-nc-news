@@ -1,5 +1,4 @@
 const knex = require("../db/connection");
-const { leftJoin } = require("../db/connection");
 
 exports.fetchArticleById = ({ article_id }) => {
   return knex
@@ -21,5 +20,24 @@ exports.fetchArticleById = ({ article_id }) => {
         ...result[0],
         comments_count: parseInt(result[0].comments_count, 10),
       };
+    });
+};
+
+exports.modifyArticleVotes = ({ article_id }, { inc_votes }) => {
+  return knex
+    .select("*")
+    .from("articles")
+    .where("articles.article_id", "=", article_id)
+    .increment("votes", inc_votes)
+    .returning("*")
+    .then((result) => {
+      if (result.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Article id ${article_id} not found!`,
+        });
+      } else {
+        return result[0];
+      }
     });
 };
