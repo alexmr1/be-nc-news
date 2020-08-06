@@ -167,7 +167,7 @@ describe("app", () => {
           });
       });
     });
-    describe.only("/articles/:article_id/comments", () => {
+    describe("/articles/:article_id/comments", () => {
       test("POST: 201 - posts a new comment for an article id && status 201 ", () => {
         const commentToAdd = {
           username: "rogersop",
@@ -244,7 +244,6 @@ describe("app", () => {
         });
         return Promise.all(promises);
       });
-
       test("GET: 200 - returns the comments for a given article_id && status 200", () => {
         return request(app)
           .get("/api/articles/9/comments")
@@ -313,6 +312,42 @@ describe("app", () => {
           .expect(404)
           .then((result) => {
             expect(result.body.msg).toBe("Route not found!");
+          });
+      });
+    });
+    describe.only("/api/articles - accepting different queries ", () => {
+      test("GET 200: gets all the articles with the correct properties sort_by the default value", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then((res) => {
+            res.body.articles.forEach((article) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  author: expect.any(String),
+                  title: expect.any(String),
+                  article_id: expect.any(Number),
+                  topic: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: expect.any(Number),
+                })
+              );
+            });
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      test.only("GET 200: filters the articles by the author specified in the query,default order", () => {
+        return request(app)
+          .get("/api/articles?author=rogersop")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.articles).toBeSortedBy("rogersop");
+            // expect(res.body.articles).toBeSortedBy("created_at", {
+            //   descending: true,
+            // });
           });
       });
     });

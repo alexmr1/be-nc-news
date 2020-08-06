@@ -1,6 +1,7 @@
 const {
   sendArticle,
   amendArticle,
+  sendSortedArticles,
 } = require("../controllers/articles.controller");
 
 const {
@@ -23,5 +24,7 @@ articlesRouter
   .post(addComment)
   .get(sendComments)
   .all(handle405s);
+
+articlesRouter.route("/").get(sendSortedArticles).all(handle405s);
 
 module.exports = articlesRouter;

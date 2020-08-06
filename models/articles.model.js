@@ -41,3 +41,33 @@ exports.modifyArticleVotes = ({ article_id }, { inc_votes }) => {
       }
     });
 };
+
+exports.sortArticles = ({ sort_by = "created_at", order = "desc", author }) => {
+  // console.log(sort_by);
+  // console.log(order);
+  return knex
+    .select(
+      "articles.author",
+      "articles.title",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .from("articles")
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .count({ comment_count: "comment_id" })
+    .orderBy(sort_by, order)
+    .where("articles.author", "=", author)
+    .returning("*")
+    .then((result) => {
+      const parsedCountArticles = result.map((article) => {
+        const newArticle = { ...article };
+        newArticle.comment_count = parseInt(article.comment_count, 10);
+        return newArticle;
+      });
+      console.log(parsedCountArticles);
+      return parsedCountArticles;
+    });
+};
