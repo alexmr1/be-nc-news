@@ -48,6 +48,9 @@ exports.sortArticles = ({
   author,
   topic,
 }) => {
+  if (order !== "desc" && order !== "asc") {
+    return Promise.reject({ status: 400, msg: "Bad Request!" });
+  }
   return knex
     .select(
       "articles.author",
@@ -64,7 +67,9 @@ exports.sortArticles = ({
     .orderBy(sort_by, order)
     .modify((query) => {
       if (author) query.where("articles.author", "=", author);
-      else if (topic) query.where("articles.topic", "=", topic);
+    })
+    .modify((query) => {
+      if (topic) query.where("articles.topic", "=", topic);
     })
     .returning("*")
     .then((result) => {
@@ -73,7 +78,6 @@ exports.sortArticles = ({
         newArticle.comment_count = parseInt(article.comment_count, 10);
         return newArticle;
       });
-
       return parsedCountArticles;
     });
 };

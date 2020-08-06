@@ -358,13 +358,70 @@ describe("app", () => {
           .get("/api/articles?topic=mitch")
           .expect(200)
           .then((res) => {
-            console.log(res.body.articles);
             res.body.articles.forEach((article) => {
               expect(article.topic).toBe("mitch");
             });
             expect(res.body.articles).toBeSortedBy("created_at", {
               descending: true,
             });
+          });
+      });
+      test("GET 200: filters the articles by the topic and author specified in the query,default order", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&&author=butter_bridge")
+          .expect(200)
+          .then((res) => {
+            res.body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            res.body.articles.forEach((article) => {
+              expect(article.author).toBe("butter_bridge");
+            });
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      test("GET 200: filters the articles by the topic and author specified in the query,sorted by article id, asc order", () => {
+        return request(app)
+          .get(
+            "/api/articles?topic=mitch&&author=butter_bridge&&sort_by=article_id&&order=asc"
+          )
+          .expect(200)
+          .then((res) => {
+            res.body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            res.body.articles.forEach((article) => {
+              expect(article.author).toBe("butter_bridge");
+            });
+            expect(res.body.articles).toBeSortedBy("article_id", {
+              ascending: true,
+            });
+          });
+      });
+      test("GET 400 - receives bad request for sort_by - invalid column ", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_name")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("GET 400 - receives bad request for order - invalid direction ", () => {
+        return request(app)
+          .get("/api/articles?order=2")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("GET 404 - receives not found for an invalid topic ", () => {
+        return request(app)
+          .get("/api/articles?topic=dogs")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Topic not found!");
           });
       });
     });
