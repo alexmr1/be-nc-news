@@ -1,9 +1,15 @@
-const { addComment } = require("../controllers/comments.controller");
+// const {
+//   addComment,
+//   sendComments,
+// } = require("../controllers/comments.controller");
 
-const { handle405s } = require("../errors");
+// const { handle405s } = require("../errors");
 
-const commentsRouter = require("express").Router();
+// const commentsRouter = require("express").Router();
 
-commentsRouter.route("/").post(addComment);
+// commentsRouter
+//   .route("/:article_id/comments")
+//   .post(addComment);
+//   .get(sendComments);
 
-module.exports = commentsRouter;
+// module.exports = commentsRouter;

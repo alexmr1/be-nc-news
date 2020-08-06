@@ -170,7 +170,7 @@ describe("app", () => {
     describe.only("/articles/:article_id/comments", () => {
       test("POST: 201 - posts a new comment for an article id && status 201 ", () => {
         const commentToAdd = {
-          username: "mabojambo",
+          username: "rogersop",
           body: "This is an intriguing article.",
         };
         return request(app)
@@ -181,13 +181,138 @@ describe("app", () => {
             expect(res.body.comment).toEqual(
               expect.objectContaining({
                 comment_id: expect.any(Number),
-                author: "mabojambo",
-                article_id: 9,
+                author: "rogersop",
+                article_id: 1,
                 votes: 0,
                 created_at: expect.any(String),
                 body: "This is an intriguing article.",
               })
             );
+          });
+      });
+      test("POST: 404 - Not found - article_id not present in articles", () => {
+        const commentToAdd = {
+          username: "rogersop",
+          body: "This is an intriguing article.",
+        };
+        return request(app)
+          .post("/api/articles/523/comments")
+          .send(commentToAdd)
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Not Found!");
+          });
+      });
+      test("POST: 404 - Not found - username not present in comments", () => {
+        const commentToAdd = {
+          username: "nobodyHere",
+          body: "This is an intriguing article.",
+        };
+        return request(app)
+          .post("/api/articles/9/comments")
+          .send(commentToAdd)
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Not Found!");
+          });
+      });
+      test("POST: 400 - Bad request - no body present in the request", () => {
+        return request(app)
+          .post("/api/articles/3/comments")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("POST 404: responds with  Route not found message and 404 status code when the wrong endpoint is introduced", () => {
+        return request(app)
+          .post("/api/articl")
+          .expect(404)
+          .then((result) => {
+            expect(result.body.msg).toBe("Route not found!");
+          });
+      });
+      test("INVALID METHODS /articles/:article_id/comments, status 405", () => {
+        const invalidMethods = ["put", "del", "patch"];
+        const promises = invalidMethods.map((method) => {
+          return request(app)
+            [method]("/api/articles/:article_id/comments")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Method not allowed!");
+            });
+        });
+        return Promise.all(promises);
+      });
+
+      test("GET: 200 - returns the comments for a given article_id && status 200", () => {
+        return request(app)
+          .get("/api/articles/9/comments")
+          .expect(200)
+          .then((res) => {
+            res.body.comments.forEach((comment) => {
+              expect(comment).toEqual(
+                expect.objectContaining({
+                  comment_id: expect.any(Number),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+      test("GET: 200 - returns the comments sorted by votes and displays them in descending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=votes")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.comments).toBeSortedBy("votes", {
+              descending: true,
+            });
+          });
+      });
+      test("GET: 200 - returns the comments sorted by comment_id and displays them in ascending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=comment_id&&order=asc")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.comments).toBeSortedBy("comment_id", {
+              ascending: true,
+            });
+          });
+      });
+      test("GET: 400 - returns bad request for sort_by a column that does not exist", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=pens")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("GET: 404 - returns not found - article_id not present in articles ", () => {
+        return request(app)
+          .get("/api/articles/234/comments?sort_by=votes")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Not Found!");
+          });
+      });
+      test("GET: 400 - returns Bad Request if the article_id is invalid", () => {
+        return request(app)
+          .get("/api/articles/art_no/comments?sort_by=votes")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("GET: 405 - returns a route not found message for the wrong path ", () => {
+        return request(app)
+          .get("/api/articles/1/commen")
+          .expect(404)
+          .then((result) => {
+            expect(result.body.msg).toBe("Route not found!");
           });
       });
     });
