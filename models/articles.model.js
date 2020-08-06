@@ -42,9 +42,12 @@ exports.modifyArticleVotes = ({ article_id }, { inc_votes }) => {
     });
 };
 
-exports.sortArticles = ({ sort_by = "created_at", order = "desc", author }) => {
-  // console.log(sort_by);
-  // console.log(order);
+exports.sortArticles = ({
+  sort_by = "created_at",
+  order = "desc",
+  author,
+  topic,
+}) => {
   return knex
     .select(
       "articles.author",
@@ -59,7 +62,10 @@ exports.sortArticles = ({ sort_by = "created_at", order = "desc", author }) => {
     .groupBy("articles.article_id")
     .count({ comment_count: "comment_id" })
     .orderBy(sort_by, order)
-    .where("articles.author", "=", author)
+    .modify((query) => {
+      if (author) query.where("articles.author", "=", author);
+      else if (topic) query.where("articles.topic", "=", topic);
+    })
     .returning("*")
     .then((result) => {
       const parsedCountArticles = result.map((article) => {
@@ -67,7 +73,7 @@ exports.sortArticles = ({ sort_by = "created_at", order = "desc", author }) => {
         newArticle.comment_count = parseInt(article.comment_count, 10);
         return newArticle;
       });
-      console.log(parsedCountArticles);
+
       return parsedCountArticles;
     });
 };

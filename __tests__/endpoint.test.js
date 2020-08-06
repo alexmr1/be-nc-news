@@ -339,15 +339,32 @@ describe("app", () => {
             });
           });
       });
-      test.only("GET 200: filters the articles by the author specified in the query,default order", () => {
+      test("GET 200: filters the articles by the author specified in the query,default order", () => {
         return request(app)
           .get("/api/articles?author=rogersop")
           .expect(200)
           .then((res) => {
-            expect(res.body.articles).toBeSortedBy("rogersop");
-            // expect(res.body.articles).toBeSortedBy("created_at", {
-            //   descending: true,
-            // });
+            res.body.articles.forEach((article) => {
+              expect(article.author).toBe("rogersop");
+            });
+            expect(res.body.articles.length).toBe(3);
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      test("GET 200: filters the articles by the topic specified in the query,default order", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body.articles);
+            res.body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
           });
       });
     });

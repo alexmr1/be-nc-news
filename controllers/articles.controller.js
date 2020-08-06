@@ -25,7 +25,6 @@ exports.amendArticle = (req, res, next) => {
 
 exports.sendSortedArticles = (req, res, next) => {
   const query = req.query;
-  console.log(query);
   sortArticles(query)
     .then((articles) => {
       res.status(200).send({ articles });
