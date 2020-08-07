@@ -80,6 +80,7 @@ describe("app", () => {
           .get("/api/articles/1")
           .expect(200)
           .then((res) => {
+            console.log(res.body);
             expect(res.body.article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
@@ -548,5 +549,16 @@ describe("app", () => {
           });
       });
     });
+  });
+});
+describe.only("api/ - get all the available endpoints", () => {
+  test("returns a json object with the available methods", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then((result) => {
+        // console.log(result.body);
+        expect(result.body).toEqual(expect.any(Object));
+      });
   });
 });
