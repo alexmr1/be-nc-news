@@ -36,7 +36,7 @@ exports.sendSortedArticles = (req, res, next) => {
   if (author) models.push(selectAuthorByName(author));
 
   Promise.all(models)
-    // sortArticles(query)
+
     .then(([articles]) => {
       res.status(200).send({ articles });
     })

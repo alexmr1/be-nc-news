@@ -315,7 +315,7 @@ describe("app", () => {
           });
       });
     });
-    describe.only("/api/articles - accepting different queries ", () => {
+    describe("/api/articles - accepting different queries ", () => {
       test("GET 200: gets all the articles with the correct properties sort_by the default value", () => {
         return request(app)
           .get("/api/articles")
@@ -444,6 +444,108 @@ describe("app", () => {
             });
         });
         return Promise.all(promises);
+      });
+    });
+    describe("/api/comments/:comment_id", () => {
+      test("PATCH 200 - updates the comment with the votes", () => {
+        const patchForComment = { inc_votes: 10 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(patchForComment)
+          .expect(200)
+          .then((res) => {
+            expect(res.body.comment).toEqual({
+              comment_id: 1,
+              body:
+                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              article_id: 9,
+              author: "butter_bridge",
+              votes: 26,
+              created_at: "2017-11-22T12:36:03.389Z",
+            });
+          });
+      });
+      test("PATCH 404 - comment_id not found, status 404 ", () => {
+        const patchForComment = { inc_votes: 10 };
+        return request(app)
+          .patch("/api/comments/3534")
+          .send(patchForComment)
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Comment id 3534 not found!");
+          });
+      });
+      test("PATCH 400 - Bad request - incorrect votes in the body", () => {
+        const patchForComment = { inc_votes: "cncno" };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(patchForComment)
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("PATCH 400 - Bad request - empty body received", () => {
+        const patchForComment = {};
+        return request(app)
+          .patch("/api/comments/1")
+          .send(patchForComment)
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("PATCH 400 - Bad request - incorrect key ", () => {
+        const patchForComment = { inc_vos: 5 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(patchForComment)
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
+      });
+      test("INVALID METHODS /api/comments/:comment_id, status 405", () => {
+        const invalidMethods = ["put", "get", "post"];
+        const promises = invalidMethods.map((method) => {
+          return request(app)
+            [method]("/api/comments/9")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Method not allowed!");
+            });
+        });
+        return Promise.all(promises);
+      });
+      test("DELETE: 204 - deletes the comment for the given comment id and checks if the id was deleted", () => {
+        return request(app)
+          .del("/api/comments/1")
+          .expect(204)
+          .then(() => {
+            return request(app)
+              .get("/api/comments")
+              .then((res) => {
+                expect(
+                  res.body.comments.every((comment) => comment.comment_id !== 1)
+                ).toBe(true);
+              });
+          });
+      });
+      test("DELETE: 404 - comment_id not found", () => {
+        return request(app)
+          .del("/api/comments/961")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Comment id not found!");
+          });
+      });
+      test("DELETE: 400 - bad request comment_id not an integer", () => {
+        return request(app)
+          .del("/api/comments/jaksjb")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).toBe("Bad Request!");
+          });
       });
     });
   });
