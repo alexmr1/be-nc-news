@@ -14,6 +14,6 @@ commentsRouter
   .delete(deleteComment)
   .all(handle405s);
 
-commentsRouter.route("/").get(sendAllComments);
+commentsRouter.route("/").get(sendAllComments).all(handle405s);
 
 module.exports = commentsRouter;
