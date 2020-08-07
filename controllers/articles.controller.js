@@ -4,7 +4,8 @@ const {
   sortArticles,
 } = require("../models/articles.model");
 
-const { checkTopic } = require("../models/topics.model");
+const { selectTopicByName } = require("../models/topics.model");
+const { selectAuthorByName } = require("../models/users.model");
 
 exports.sendArticle = (req, res, next) => {
   const articleId = req.params;
@@ -28,12 +29,15 @@ exports.amendArticle = (req, res, next) => {
 exports.sendSortedArticles = (req, res, next) => {
   const query = req.query;
   const { topic } = req.query;
-  // const models = [sortArticles(query)];
+  const { author } = req.query;
+  const models = [sortArticles(query)];
 
-  // if (topic) models.push(checkTopic(topic));
+  if (topic) models.push(selectTopicByName(topic));
+  if (author) models.push(selectAuthorByName(author));
 
-  sortArticles(query)
-    .then((articles) => {
+  Promise.all(models)
+    // sortArticles(query)
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch(next);

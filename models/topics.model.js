@@ -13,14 +13,14 @@ exports.fetchTopics = () => {
     });
 };
 
-exports.checkTopic = (topic) => {
+exports.selectTopicByName = (topic) => {
   return knex
-    .select("*")
+    .select()
     .from("topics")
     .where("slug", "=", topic)
-    .returning("*")
     .then((topic) => {
-      if (topic.length === 0)
-        return Promise.reject({ status: 404, msg: "Topic not found!" });
+      return topic.length !== 0
+        ? topic
+        : Promise.reject({ status: 404, msg: "Topic not found!" });
     });
 };

@@ -358,6 +358,7 @@ describe("app", () => {
           .get("/api/articles?topic=mitch")
           .expect(200)
           .then((res) => {
+            // console.log(res.body.articles);
             res.body.articles.forEach((article) => {
               expect(article.topic).toBe("mitch");
             });
@@ -423,6 +424,26 @@ describe("app", () => {
           .then((res) => {
             expect(res.body.msg).toBe("Topic not found!");
           });
+      });
+      test("GET 404 - receives not found for an invalid author ", () => {
+        return request(app)
+          .get("/api/articles?author=banski")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("Author not found!");
+          });
+      });
+      test("INVALID METHODS /api/articles?sort_by, status 405", () => {
+        const invalidMethods = ["put", "del", "patch", "post"];
+        const promises = invalidMethods.map((method) => {
+          return request(app)
+            [method]("/api/articles?sort_by=votes")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Method not allowed!");
+            });
+        });
+        return Promise.all(promises);
       });
     });
   });

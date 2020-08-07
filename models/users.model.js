@@ -16,3 +16,15 @@ exports.fetchUserByUsername = ({ username }) => {
       return result[0];
     });
 };
+
+exports.selectAuthorByName = (author) => {
+  return knex
+    .select()
+    .from("users")
+    .where("username", "=", author)
+    .then((author) => {
+      return author.length !== 0
+        ? author
+        : Promise.reject({ status: 404, msg: "Author not found!" });
+    });
+};

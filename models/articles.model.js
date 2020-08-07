@@ -51,6 +51,7 @@ exports.sortArticles = ({
   if (order !== "desc" && order !== "asc") {
     return Promise.reject({ status: 400, msg: "Bad Request!" });
   }
+
   return knex
     .select(
       "articles.author",
