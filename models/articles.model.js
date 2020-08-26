@@ -53,6 +53,7 @@ exports.sortArticles = ({
   }
 
   return knex
+    .paginate({ perPage: 10, currentPage: 1 })
     .select(
       "articles.author",
       "articles.title",
@@ -80,6 +81,5 @@ exports.sortArticles = ({
         return newArticle;
       });
       return parsedCountArticles;
-    })
-    .paginate({ perPage: 10, currentPage: 1 });
+    });
 };
