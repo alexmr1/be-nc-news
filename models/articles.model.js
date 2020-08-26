@@ -73,6 +73,7 @@ exports.sortArticles = ({
       if (topic) query.where("articles.topic", "=", topic);
     })
     .returning("*")
+    .paginate({ perPage: 10, currentPage: 1, isFromStart: true })
     .then((result) => {
       const parsedCountArticles = result.map((article) => {
         const newArticle = { ...article };
