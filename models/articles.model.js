@@ -52,36 +52,34 @@ exports.sortArticles = ({
     return Promise.reject({ status: 400, msg: "Bad Request!" });
   }
 
-  return (
-    knex
-      .select(
-        "articles.author",
-        "articles.title",
-        "articles.article_id",
-        "articles.topic",
-        "articles.created_at",
-        "articles.votes"
-      )
-      .from("articles")
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .groupBy("articles.article_id")
-      .count({ comment_count: "comment_id" })
-      .orderBy(sort_by, order)
-      .modify((query) => {
-        if (author) query.where("articles.author", "=", author);
-      })
-      .modify((query) => {
-        if (topic) query.where("articles.topic", "=", topic);
-      })
-      .returning("*")
-      // .paginate({ perPage: 10, currentPage: 1 })
-      .then((result) => {
-        const parsedCountArticles = result.map((article) => {
-          const newArticle = { ...article };
-          newArticle.comment_count = parseInt(article.comment_count, 10);
-          return newArticle;
-        });
-        return parsedCountArticles;
-      })
-  );
+  return knex
+    .select(
+      "articles.author",
+      "articles.title",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .from("articles")
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .count({ comment_count: "comment_id" })
+    .orderBy(sort_by, order)
+    .modify((query) => {
+      if (author) query.where("articles.author", "=", author);
+    })
+    .modify((query) => {
+      if (topic) query.where("articles.topic", "=", topic);
+    })
+    .returning("*")
+    .then((result) => {
+      const parsedCountArticles = result.map((article) => {
+        const newArticle = { ...article };
+        newArticle.comment_count = parseInt(article.comment_count, 10);
+        return newArticle;
+      });
+      return parsedCountArticles;
+    })
+    .paginate({ perPage: 10, currentPage: 1 });
 };
