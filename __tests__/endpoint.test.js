@@ -80,7 +80,7 @@ describe("app", () => {
           .get("/api/articles/1")
           .expect(200)
           .then((res) => {
-            console.log(res.body);
+            // console.log(res.body);
             expect(res.body.article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
@@ -322,7 +322,7 @@ describe("app", () => {
           .get("/api/articles")
           .expect(200)
           .then((res) => {
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article).toEqual(
                 expect.objectContaining({
                   author: expect.any(String),
@@ -345,10 +345,10 @@ describe("app", () => {
           .get("/api/articles?author=rogersop")
           .expect(200)
           .then((res) => {
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.author).toBe("rogersop");
             });
-            expect(res.body.articles.length).toBe(3);
+            expect(res.body.articles.parsedArticles.length).toBe(3);
             expect(res.body.articles).toBeSortedBy("created_at", {
               descending: true,
             });
@@ -360,7 +360,7 @@ describe("app", () => {
           .expect(200)
           .then((res) => {
             // console.log(res.body.articles);
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.topic).toBe("mitch");
             });
             expect(res.body.articles).toBeSortedBy("created_at", {
@@ -373,10 +373,10 @@ describe("app", () => {
           .get("/api/articles?topic=mitch&&author=butter_bridge")
           .expect(200)
           .then((res) => {
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.topic).toBe("mitch");
             });
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.author).toBe("butter_bridge");
             });
             expect(res.body.articles).toBeSortedBy("created_at", {
@@ -391,10 +391,10 @@ describe("app", () => {
           )
           .expect(200)
           .then((res) => {
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.topic).toBe("mitch");
             });
-            res.body.articles.forEach((article) => {
+            res.body.articles.parsedArticles.forEach((article) => {
               expect(article.author).toBe("butter_bridge");
             });
             expect(res.body.articles).toBeSortedBy("article_id", {
@@ -551,7 +551,7 @@ describe("app", () => {
     });
   });
 });
-describe.only("api/ - get all the available endpoints", () => {
+describe("api/ - get all the available endpoints", () => {
   test("returns a json object with the available methods", () => {
     return request(app)
       .get("/api")

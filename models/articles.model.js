@@ -53,7 +53,6 @@ exports.sortArticles = ({
   }
 
   return knex
-    .paginate({ perPage: 10, currentPage: 1 })
     .select(
       "articles.author",
       "articles.title",
@@ -64,6 +63,8 @@ exports.sortArticles = ({
     )
     .from("articles")
     .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .limit(10)
+    .offset(0)
     .groupBy("articles.article_id")
     .count({ comment_count: "comment_id" })
     .orderBy(sort_by, order)
@@ -75,11 +76,12 @@ exports.sortArticles = ({
     })
     .returning("*")
     .then((result) => {
-      const parsedCountArticles = result.map((article) => {
+      const parsedArticles = result.map((article) => {
         const newArticle = { ...article };
         newArticle.comment_count = parseInt(article.comment_count, 10);
         return newArticle;
       });
-      return parsedCountArticles;
+      const totalCount = parsedArticles.length;
+      return { parsedArticles, totalCount };
     });
 };
